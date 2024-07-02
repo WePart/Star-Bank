@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Gift, Star } from 'lucide-react';
+import { Gift, Star, Book, Palette, Tree, Heart, Lightbulb, Rocket, Globe, Home } from 'lucide-react';
 import { Rewards } from '../data/rewards';
 
 interface RewardRedeemerProps {
@@ -10,15 +10,15 @@ interface RewardRedeemerProps {
 }
 
 const RewardRedeemer: React.FC<RewardRedeemerProps> = ({ rewards, redeemReward }) => {
-  const categoryColors: { [key: string]: string } = {
-    'reading': 'from-blue-200 to-indigo-200 hover:from-blue-300 hover:to-indigo-300 text-blue-800',
-    'creative': 'from-pink-200 to-rose-200 hover:from-pink-300 hover:to-rose-300 text-pink-800',
-    'outdoor': 'from-green-200 to-emerald-200 hover:from-green-300 hover:to-emerald-300 text-green-800',
-    'social': 'from-purple-200 to-fuchsia-200 hover:from-purple-300 hover:to-fuchsia-300 text-purple-800',
-    'skills': 'from-yellow-200 to-amber-200 hover:from-yellow-300 hover:to-amber-300 text-yellow-800',
-    'science': 'from-teal-200 to-cyan-200 hover:from-teal-300 hover:to-cyan-300 text-teal-800',
-    'culture': 'from-red-200 to-orange-200 hover:from-red-300 hover:to-orange-300 text-red-800',
-    'family': 'from-violet-200 to-indigo-200 hover:from-violet-300 hover:to-indigo-300 text-violet-800',
+  const categoryStyles: { [key: string]: { bg: string, icon: React.ElementType, iconColor: string } } = {
+    'reading': { bg: "bg-blue-100", icon: Book, iconColor: "text-blue-500" },
+    'creative': { bg: "bg-pink-100", icon: Palette, iconColor: "text-pink-500" },
+    'outdoor': { bg: "bg-green-100", icon: Tree, iconColor: "text-green-500" },
+    'social': { bg: "bg-purple-100", icon: Heart, iconColor: "text-purple-500" },
+    'skills': { bg: "bg-yellow-100", icon: Lightbulb, iconColor: "text-yellow-600" },
+    'science': { bg: "bg-teal-100", icon: Rocket, iconColor: "text-teal-500" },
+    'culture': { bg: "bg-red-100", icon: Globe, iconColor: "text-red-500" },
+    'family': { bg: "bg-indigo-100", icon: Home, iconColor: "text-indigo-500" },
   };
 
   const categorizeReward = (reward: string): string => {
@@ -44,15 +44,17 @@ const RewardRedeemer: React.FC<RewardRedeemerProps> = ({ rewards, redeemReward }
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {Object.entries(rewards).map(([reward, cost]) => {
             const category = categorizeReward(reward);
+            const { bg, icon: Icon, iconColor } = categoryStyles[category];
             return (
               <Button 
                 key={reward} 
                 onClick={() => redeemReward(reward)}
-                className={`bg-gradient-to-r ${categoryColors[category]} font-bubblegum font-normal py-2 px-3 rounded-lg text-base shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex flex-col items-center justify-center h-auto`}
+                className={`${bg} hover:bg-opacity-80 text-gray-800 font-bubblegum font-normal py-3 px-4 rounded-2xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex flex-col items-center justify-center h-auto border-2 border-opacity-50 border-gray-300`}
               >
+                <Icon className={`mb-2 ${iconColor}`} size={24} />
                 <span className="text-center leading-tight mb-1">{reward}</span>
-                <span className="text-center font-bold">
-                  {cost} <Star className="inline-block ml-1 text-yellow-500" size={14} />
+                <span className="text-center font-bold flex items-center mt-1">
+                  {cost} <Star className="inline-block ml-1 text-yellow-500" size={16} />
                 </span>
               </Button>
             );
