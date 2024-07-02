@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Sun, Star } from 'lucide-react';
 import StarCollector from './StarCollector';
-import StarDisplay from './StarDisplay';
 import RewardRedeemer from './RewardRedeemer';
-import HistoryDisplay from './HistoryDisplay';
 import PointDeductor from './PointDeductor';
+import FloatingPointsDisplay from './FloatingPointsDisplay';
 import presetReasons from '../data/presetReasons';
 import rewards from '../data/rewards';
 
 export interface HistoryEntry {
+  id: string;
   date: string;
   points: number;
   reason: string;
@@ -35,14 +35,15 @@ const PointSystem: React.FC = () => {
   useEffect(() => {
     setPoints(100);
     setHistory([
-      { date: '2024-07-01', points: 10, reason: '今天主动做作业', type: 'add' },
-      { date: '2024-07-02', points: 20, reason: '帮忙做家务', type: 'add' },
+      { id: '1', date: '2024-07-01', points: 10, reason: '今天主动做作业', type: 'add' },
+      { id: '2', date: '2024-07-02', points: 20, reason: '帮忙做家务', type: 'add' },
     ]);
   }, []);
 
   const addPoints = (pointsToAdd: number, reasonText: string) => {
     setPoints(prevPoints => prevPoints + pointsToAdd);
     const newEntry: HistoryEntry = { 
+      id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0], 
       points: pointsToAdd, 
       reason: reasonText,
@@ -55,6 +56,7 @@ const PointSystem: React.FC = () => {
   const deductPoints = (pointsToDeduct: number, reasonText: string) => {
     setPoints(prevPoints => Math.max(0, prevPoints - pointsToDeduct));
     const newEntry: HistoryEntry = { 
+      id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0], 
       points: pointsToDeduct, 
       reason: reasonText,
@@ -68,6 +70,14 @@ const PointSystem: React.FC = () => {
     const cost = rewards[reward];
     if (points >= cost) {
       setPoints(prevPoints => prevPoints - cost);
+      const newEntry: HistoryEntry = {
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        points: cost,
+        reason: `兑换奖励: ${reward}`,
+        type: 'deduct'
+      };
+      setHistory(prevHistory => [newEntry, ...prevHistory]);
       setMessage(`耶！你用 ${cost} 颗星星兑换了 ${reward}！还剩下 ${points - cost} 颗小星星，继续加油哦！🎉`);
     } else {
       setMessage(`哎呀，星星不够呢。需要 ${cost} 颗星星，你有 ${points} 颗。再努力一下就能兑换啦！💪`);
@@ -82,14 +92,13 @@ const PointSystem: React.FC = () => {
         <Star className="inline-block ml-2 text-yellow-400" />
       </h1>
       
+      <FloatingPointsDisplay points={points} history={history} />
+      
       <div className="grid grid-cols-1 gap-6">
         <StarCollector presetReasons={presetReasons} addPoints={addPoints} />
-        <StarDisplay points={points} />
+        <PointDeductor deductions={deductions} deductPoints={deductPoints} />
+        <RewardRedeemer rewards={rewards} redeemReward={redeemReward} />
       </div>
-
-      <PointDeductor deductions={deductions} deductPoints={deductPoints} />
-      <RewardRedeemer rewards={rewards} redeemReward={redeemReward} />
-      <HistoryDisplay history={history} />
 
       {message && (
         <Alert className="mt-6 bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300 rounded-full">

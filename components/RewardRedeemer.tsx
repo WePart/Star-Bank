@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Gift, Star, Book, Palette, Tree, Heart, Lightbulb, Rocket, Globe, Home } from 'lucide-react';
+import { Gift, Star, BookOpen, Palette, Leaf, Heart, Lightbulb, Rocket, Globe, Home } from 'lucide-react';
 import { Rewards } from '../data/rewards';
 
 interface RewardRedeemerProps {
@@ -10,15 +10,22 @@ interface RewardRedeemerProps {
 }
 
 const RewardRedeemer: React.FC<RewardRedeemerProps> = ({ rewards, redeemReward }) => {
-  const categoryStyles: { [key: string]: { bg: string, icon: React.ElementType, iconColor: string } } = {
-    'reading': { bg: "bg-blue-100", icon: Book, iconColor: "text-blue-500" },
-    'creative': { bg: "bg-pink-100", icon: Palette, iconColor: "text-pink-500" },
-    'outdoor': { bg: "bg-green-100", icon: Tree, iconColor: "text-green-500" },
-    'social': { bg: "bg-purple-100", icon: Heart, iconColor: "text-purple-500" },
-    'skills': { bg: "bg-yellow-100", icon: Lightbulb, iconColor: "text-yellow-600" },
-    'science': { bg: "bg-teal-100", icon: Rocket, iconColor: "text-teal-500" },
-    'culture': { bg: "bg-red-100", icon: Globe, iconColor: "text-red-500" },
-    'family': { bg: "bg-indigo-100", icon: Home, iconColor: "text-indigo-500" },
+  const rowColors = [
+    { bg: "bg-sky-100", hoverBg: "hover:bg-sky-200", borderColor: "border-sky-300" },
+    { bg: "bg-green-100", hoverBg: "hover:bg-green-200", borderColor: "border-green-300" },
+    { bg: "bg-yellow-100", hoverBg: "hover:bg-yellow-200", borderColor: "border-yellow-300" },
+    { bg: "bg-pink-100", hoverBg: "hover:bg-pink-200", borderColor: "border-pink-300" },
+  ];
+
+  const icons: { [key: string]: React.ElementType } = {
+    'reading': BookOpen,
+    'creative': Palette,
+    'outdoor': Leaf,
+    'social': Heart,
+    'skills': Lightbulb,
+    'science': Rocket,
+    'culture': Globe,
+    'family': Home,
   };
 
   const categorizeReward = (reward: string): string => {
@@ -33,32 +40,45 @@ const RewardRedeemer: React.FC<RewardRedeemerProps> = ({ rewards, redeemReward }
   };
 
   return (
-    <Card className="mt-6 bg-white shadow-lg border-4 border-green-300 rounded-3xl overflow-hidden font-bubblegum">
-      <CardHeader className="bg-gradient-to-r from-green-200 to-emerald-200">
-        <CardTitle className="flex items-center text-3xl text-green-700">
-          <Gift className="mr-2 text-green-500" />
+    <Card className="mt-6 bg-gradient-to-r from-purple-100 to-pink-100 shadow-lg border-4 border-purple-200 rounded-3xl overflow-hidden font-bubblegum">
+      <CardHeader className="bg-gradient-to-r from-purple-200 to-pink-200">
+        <CardTitle className="flex items-center text-3xl text-purple-700">
+          <Gift className="mr-2 text-pink-500" />
           用星星换礼物
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {Object.entries(rewards).map(([reward, cost]) => {
+        <div className="grid grid-cols-1 gap-3">
+          {Object.entries(rewards).reduce((acc: JSX.Element[][], [reward, cost], index) => {
+            const rowIndex = Math.floor(index / 4);
             const category = categorizeReward(reward);
-            const { bg, icon: Icon, iconColor } = categoryStyles[category];
-            return (
+            const Icon = icons[category];
+            const { bg, hoverBg, borderColor } = rowColors[rowIndex % rowColors.length];
+
+            if (!acc[rowIndex]) {
+              acc[rowIndex] = [];
+            }
+
+            acc[rowIndex].push(
               <Button 
                 key={reward} 
                 onClick={() => redeemReward(reward)}
-                className={`${bg} hover:bg-opacity-80 text-gray-800 font-bubblegum font-normal py-3 px-4 rounded-2xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex flex-col items-center justify-center h-auto border-2 border-opacity-50 border-gray-300`}
+                className={`${bg} ${hoverBg} text-gray-800 font-bubblegum font-normal py-3 px-4 rounded-2xl shadow-md transition duration-300 ease-in-out transform hover:scale-105 hover:rotate-1 flex flex-col items-center justify-center h-auto border-2 ${borderColor} hover:border-purple-400 hover:text-purple-700`}
               >
-                <Icon className={`mb-2 ${iconColor}`} size={24} />
+                <Icon className="mb-2 text-purple-600" size={28} />
                 <span className="text-center leading-tight mb-1">{reward}</span>
                 <span className="text-center font-bold flex items-center mt-1">
-                  {cost} <Star className="inline-block ml-1 text-yellow-500" size={16} />
+                  {cost} <Star className="inline-block ml-1 text-yellow-500" size={18} fill="yellow" />
                 </span>
               </Button>
             );
-          })}
+
+            return acc;
+          }, []).map((row, rowIndex) => (
+            <div key={rowIndex} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {row}
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
